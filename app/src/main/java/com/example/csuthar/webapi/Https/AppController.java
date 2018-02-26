@@ -33,6 +33,7 @@ public class AppController extends Application {
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+
         }
 
         return mRequestQueue;
@@ -44,6 +45,8 @@ public class AppController extends Application {
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
         getRequestQueue().add(req);
+       // Log.e(TAG, "addToRequestQueue: "+getRequestQueue().getSequenceNumber() );
+
     }
 
     public <T> void addToRequestQueue(Request<T> req) {

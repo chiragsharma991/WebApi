@@ -6,16 +6,13 @@ package com.example.csuthar.webapi.Https;
 
 public class customModel {
 
-    String name;
-    int Age;
+/*
+    List arrayList=new ArrayList();
 
+    String s=new String();
 
-    public String getName() {
-        return name;
-    }
-
-    public int getAge() {
-        return Age;
-    }
-
+    main() {
+        arrayList.add(23);
+        arrayList.add("ssdfs");
+    }*/
 }

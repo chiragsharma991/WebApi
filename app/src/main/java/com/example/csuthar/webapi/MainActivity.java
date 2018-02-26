@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +16,8 @@ import com.example.csuthar.webapi.Https.GetRequest;
 import com.example.csuthar.webapi.Https.customModel;
 import com.example.csuthar.webapi.Utils.AppUrl;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -23,13 +27,15 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity implements GetRequest.responser {
 
     @BindViews({R.id.edit_name, R.id.edit_id})
-    EditText editText;
+    List<EditText> editText;
     @BindView(R.id.button)
     Button button;
+    @BindView(R.id.toolbar)
+    android.support.v7.widget.Toolbar toolbar;
     @BindView(R.id.radio_group)
     RadioGroup radioGroup;
     @BindViews({R.id.male, R.id.female})
-    RadioButton radioButton;
+    List<RadioButton> radioButton;
 
     private Context context;
     private String TAG = this.getClass().getSimpleName();
@@ -42,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements GetRequest.respon
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         context = this;
+        setSupportActionBar(toolbar);
 
 
     }
@@ -61,6 +68,19 @@ public class MainActivity extends AppCompatActivity implements GetRequest.respon
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        Log.e(TAG, "onOptionsItemSelected: " );
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbarset,menu);
+        return true;
+    }
 
     private void ApiCallBack(customModel model, int id) {
         String url = null;
@@ -69,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements GetRequest.respon
         switch (id) {
 
             case 0:
-                url = AppUrl.GETAPI.toString();
+                url = AppUrl.AUTHLOGIN.toString();
                 requestApi = new GetRequest(context, url, url, id); // api tag is asper url
                 break;
 
