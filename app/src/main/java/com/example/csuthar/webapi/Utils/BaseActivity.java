@@ -241,6 +241,8 @@ public class BaseActivity extends AppCompatActivity {
         {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                   // this is show after else part when you decline the request and all rationale req occure here.
+
                     Log.e( "shouldShowRequest: ","-if yes-" );
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
                     alertBuilder.setCancelable(true);
@@ -255,6 +257,7 @@ public class BaseActivity extends AppCompatActivity {
                     AlertDialog alert = alertBuilder.create();
                     alert.show();
                 } else {
+                     // this is occure on first time when permission is not granted and second time where you tap never ask for permission.
                     Log.e( "shouldShowRequest: ","-else-" );
                     ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                 }

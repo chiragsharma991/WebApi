@@ -3,16 +3,23 @@ package com.example.csuthar.webapi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.csuthar.webapi.Utils.BaseActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,7 +50,7 @@ public class ImagePicker  extends BaseActivity{
     protected void galleryIntent() {
         Log.e(TAG, "galleryIntent: " );
         Intent intent = new Intent();
-        intent.setType("image/* video/*");
+        intent.setType("*/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);//
         startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
 
@@ -54,24 +61,31 @@ public class ImagePicker  extends BaseActivity{
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "onRequestPermissionsResult: TRUE" );
+                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
                     if(userChoosenTask.equals("Take Photo"))
                         cameraIntent();
                     else if(userChoosenTask.equals("Choose from Library"))
                         galleryIntent();
-                } else {
-                    Log.e(TAG, "onRequestPermissionsResult: FALSE" );
 
+
+                } else if (Build.VERSION.SDK_INT >= 23 && !shouldShowRequestPermissionRationale(permissions[0])){
+                    Toast.makeText(this, "Go to Settings and Grant the permission to use this feature.", Toast.LENGTH_SHORT).show();
                     //code for deny
+                } else {
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+
                 }
                 break;
         }
     }
 
 
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // if you want result true / false
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SELECT_FILE)
                 onSelectFromGalleryResult(data);
@@ -83,13 +97,43 @@ public class ImagePicker  extends BaseActivity{
     private void onSelectFromGalleryResult(Intent data) {
         Bitmap bm=null;
         if (data != null) {
+
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            //    ImageView imageView = (ImageView) findViewById(R.id.imgView);
+
+            Bitmap bmp = null;
             try {
-                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+                bmp = getBitmapFromUri(selectedImage);
             } catch (IOException e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            imageView.setImageBitmap(bmp);
+
+
+            //  bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+            //    Log.e(TAG, "onSelectFromGalleryResult: "+bm );
         }
-        imageView.setImageBitmap(bm);
+        //imageView.setImageBitmap(bm);
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor =
+                getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
     }
 
     private void onCaptureImageResult(Intent data) {
